@@ -30,6 +30,7 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
   void clearData;
   BoxDecoration? boxDecoration;
   bool isCrossBtnShown;
+  bool onlyRemoveOverlay;
   bool showError;
   double? containerHorizontalPadding;
   double? containerVerticalPadding;
@@ -46,6 +47,7 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
       this.isLatLngRequired = true,
       this.textStyle: const TextStyle(),
       this.countries,
+      this.onlyRemoveOverlay = true,
       this.getPlaceDetailWithLatLng,
       this.itemBuilder,
       this.boxDecoration,
@@ -115,7 +117,11 @@ class _GooglePlaceAutoCompleteTextFieldState
             (!widget.isCrossBtnShown)
                 ? SizedBox()
                 : isCrossBtn && _showCrossIconWidget()
-                    ? IconButton(onPressed: clearData, icon: Icon(Icons.close))
+                    ? IconButton(
+                        onPressed: widget.onlyRemoveOverlay
+                            ? removeOverlay
+                            : clearData,
+                        icon: Icon(Icons.close))
                     : SizedBox()
           ],
         ),
@@ -195,15 +201,15 @@ class _GooglePlaceAutoCompleteTextFieldState
   void initState() {
     super.initState();
     _dio = Dio();
-    subject.stream
-        .distinct()
-        .debounceTime(Duration(milliseconds: widget.debounceTime))
-        .listen(textChanged);
+    // subject.stream
+    //     .distinct()
+    //     .debounceTime(Duration(milliseconds: widget.debounceTime))
+    //     .listen(textChanged);
   }
 
-  textChanged(String text) async {
-    getLocation(text);
-  }
+  // textChanged(String text) async {
+  //   getLocation(text);
+  // }
 
   OverlayEntry? _createOverlayEntry() {
     if (context != null && context.findRenderObject() != null) {
