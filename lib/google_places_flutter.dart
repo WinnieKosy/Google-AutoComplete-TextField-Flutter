@@ -3,6 +3,7 @@ library google_places_flutter;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_places_flutter/model/address_component.dart';
 import 'package:google_places_flutter/model/place_details.dart';
 import 'package:google_places_flutter/model/place_type.dart';
 import 'package:google_places_flutter/model/prediction.dart';
@@ -54,7 +55,8 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
       this.containerHorizontalPadding,
       this.containerVerticalPadding,
       this.focusNode,
-      this.placeType,this.language='en'});
+      this.placeType,
+      this.language = 'en'});
 
   @override
   _GooglePlaceAutoCompleteTextFieldState createState() =>
@@ -100,6 +102,7 @@ class _GooglePlaceAutoCompleteTextFieldState
                 style: widget.textStyle,
                 controller: widget.textEditingController,
                 focusNode: widget.focusNode ?? FocusNode(),
+                textInputAction: TextInputAction.next,
                 onChanged: (string) {
                   subject.add(string);
                   if (widget.isCrossBtnShown) {
@@ -273,6 +276,30 @@ class _GooglePlaceAutoCompleteTextFieldState
 
       prediction.lat = placeDetails.result!.geometry!.location!.lat.toString();
       prediction.lng = placeDetails.result!.geometry!.location!.lng.toString();
+      if (placeDetails.result?.addressComponents != null) {
+        List<AddressComponent> addressComponents =
+            placeDetails.result!.addressComponents!.map((e) {
+          return AddressComponent(
+              longName: e.longName ?? '',
+              shortName: e.shortName ?? "",
+              types: e.types ?? []);
+        }).toList();
+
+        String? getComponentByType(String type) {
+          return addressComponents
+              .firstWhere(
+                (comp) => comp.types.contains(type),
+                orElse: () =>
+                    AddressComponent(longName: "", shortName: "", types: []),
+              )
+              .longName;
+        }
+
+        prediction.locality = getComponentByType("locality") ?? "";
+        prediction.route = getComponentByType("route");
+        prediction.streetNumber = getComponentByType("street_number");
+        prediction.postal_code = getComponentByType("postal_code");
+      }
 
       widget.getPlaceDetailWithLatLng!(prediction);
     } catch (e) {
