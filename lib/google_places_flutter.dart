@@ -117,7 +117,7 @@ class _GooglePlaceAutoCompleteTextFieldState
             ),
             (!widget.isCrossBtnShown)
                 ? SizedBox()
-                : isCrossBtn && _showCrossIconWidget() && _focusNode.hasFocus
+                : isCrossBtn && _showCrossIconWidget() || _focusNode.hasFocus
                     ? IconButton(
                         onPressed: widget.onlyRemoveOverlay
                             ? removeOverlay
