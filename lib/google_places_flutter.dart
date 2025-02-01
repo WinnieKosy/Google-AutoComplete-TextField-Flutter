@@ -104,7 +104,7 @@ class _GooglePlaceAutoCompleteTextFieldState
                 decoration: widget.inputDecoration,
                 style: widget.textStyle,
                 controller: widget.textEditingController,
-                focusNode: widget.focusNode ?? FocusNode(),
+                focusNode: widget.focusNode ?? _focusNode,
                 textInputAction: TextInputAction.next,
                 onChanged: (string) {
                   subject.add(string);
