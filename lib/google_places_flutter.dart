@@ -72,6 +72,7 @@ class _GooglePlaceAutoCompleteTextFieldState
   List<Prediction> alPredictions = [];
 
   TextEditingController controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
   bool isSearched = false;
 
@@ -116,7 +117,7 @@ class _GooglePlaceAutoCompleteTextFieldState
             ),
             (!widget.isCrossBtnShown)
                 ? SizedBox()
-                : isCrossBtn && _showCrossIconWidget()
+                : isCrossBtn && _showCrossIconWidget() && !_focusNode.hasFocus
                     ? IconButton(
                         onPressed: widget.onlyRemoveOverlay
                             ? removeOverlay
@@ -200,16 +201,25 @@ class _GooglePlaceAutoCompleteTextFieldState
   @override
   void initState() {
     super.initState();
+     _focusNode.addListener(() {
+      setState(() {}); 
+    });
     _dio = Dio();
-    // subject.stream
-    //     .distinct()
-    //     .debounceTime(Duration(milliseconds: widget.debounceTime))
-    //     .listen(textChanged);
+    subject.stream
+        .distinct()
+        .debounceTime(Duration(milliseconds: widget.debounceTime))
+        .listen(textChanged);
   }
 
-  // textChanged(String text) async {
-  //   getLocation(text);
-  // }
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  textChanged(String text) async {
+    getLocation(text);
+  }
 
   OverlayEntry? _createOverlayEntry() {
     if (context != null && context.findRenderObject() != null) {
